@@ -80,7 +80,7 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
 class Config:
 	def __init__(self, path):
 		self.CheckCreateConfig(path)
-		with open(fileDir + '/apiConf.json') as conf_file:
+		with open(path) as conf_file:
 			conf = json.load(conf_file)
 			self.piId = conf['PiID']
 			self.piSecret = conf['PiSecret']
