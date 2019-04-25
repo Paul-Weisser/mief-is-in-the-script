@@ -30,17 +30,17 @@ def main():
 				eCO2Base, TVOCBase = sgp30.get_iaq_baseline()
 				print("**** Base: eCO2 = 0x%x, TVOC = 0x%x"%(eCO2Base, TVOCBase))
 		if elapsed_sec % 60 == 0:
-		try:
-			dht11 = Adafruit_DHT.DHT11
-			humidity, temperature = Adafruit_DHT.read_retry(dht11, dht11Pin)
-			humidity = humidity + config.humidityOffset
-			temperature = temperature + config.tempOffset
-			if printOut:
-				print('Temperature: %d Humidity: %d'%(temperature, humidity))
-		except Exception as ex:
-			print('DHT11 reading error')
+			try:
+				dht11 = Adafruit_DHT.DHT11
+				humidity, temperature = Adafruit_DHT.read_retry(dht11, dht11Pin)
+				humidity = humidity + config.humidityOffset
+				temperature = temperature + config.tempOffset
+				if printOut:
+					print('Temperature: %d Humidity: %d'%(temperature, humidity))
+			except Exception as ex:
+				print('DHT11 reading error')
 
-		PostToServer(config.secret,config.id,eCO2,humidity,temperature, config.apiUrl)
+			PostToServer(config.secret,config.id,eCO2,humidity,temperature, config.apiUrl)
 
 
 def InitSgp30():
