@@ -35,12 +35,11 @@ def main():
 				humidity, temperature = Adafruit_DHT.read_retry(dht11, dht11Pin)
 				humidity = humidity + config.humidityOffset
 				temperature = temperature + config.tempOffset
+				PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
 				if printOut:
 					print('Temperature: %d Humidity: %d'%(temperature, humidity))
 			except Exception as ex:
 				print('DHT11 reading error')
-
-			PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
 
 
 def InitSgp30():
