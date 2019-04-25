@@ -13,7 +13,7 @@ printOut=False
 def main():
 	fileDir = os.path.dirname(os.path.abspath(__file__)) + '/apiConf.json'
 	config=Config(fileDir)
-	printOut = config.printOut
+	global printOut = config.printOut
 	sgp30 = InitSgp30()
 
 	elapsed_sec = 0
@@ -34,10 +34,10 @@ def main():
 				dht11 = Adafruit_DHT.DHT11
 				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
 				humidity = humidity + config.humidityOffset
-				temperature = temperature + config.tempOffset
-				PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
+				temperature = temperature + config.tempOffset				
 				if printOut:
 					print('Temperature: %d Humidity: %d'%(temperature, humidity))
+				PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
 			except Exception as ex:
 				print('DHT11 reading error')
 
