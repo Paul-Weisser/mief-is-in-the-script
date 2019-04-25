@@ -49,7 +49,7 @@ def main():
 				eCO2Base, TVOCBase = sgp30.get_iaq_baseline()
 				print("**** Base: eCO2 = 0x%x, TVOC = 0x%x"%(eCO2Base, TVOCBase))
 
-			PostToServer(config.piSecret,config.piId,statistics.median(cO2List),statistics.median(tempList),statistics.median(humidityList), config.apiUrl)
+			PostToServer(config.piSecret,config.piId,statistics.median(cO2List),statistics.median(humidityList),statistics.median(tempList), config.apiUrl)
 			cO2List.clear()
 			tempList.clear()
 			humidityList.clear()
