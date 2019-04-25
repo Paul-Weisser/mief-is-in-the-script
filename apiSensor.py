@@ -6,6 +6,7 @@ import board
 import busio
 import adafruit_sgp30
 import Adafruit_DHT
+import statistics
 from datetime import datetime
 
 printOut=False
@@ -16,31 +17,42 @@ def main():
 	config=Config(fileDir)
 	printOut = config.printOut
 	sgp30 = InitSgp30()
+	dht11 = Adafruit_DHT.DHT11
 
+	cO2List = []
+	tempList = []
+	humidityList = []
 	elapsed_sec = 0
 	while True:
-		eCO2, TVOC = sgp30.iaq_measure()
-		if printOut:
-			print("eCO2 = %d ppm \t TVOC = %d ppb" % (eCO2, TVOC))
+		#Alle 6 Sekunden machen wir eine Messung		
+		if elapsed_sec % 6 == 0:
+			try:
+				eCO2, TVOC = sgp30.iaq_measure()
+				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
+				humidity = humidity + config.humidityOffset
+				temperature = temperature + config.tempOffset
+				cO2List.append(eCO2)
+				tempList.append(temperature)
+				humidityList.append(humidity)
+				if printOut:
+					print("eCO2 = %d ppm \t TVOC = %d ppb" % (eCO2, TVOC))
+					print('Temperature = %d Humidity = %d'%(temperature, humidity))
+			except Exception as ex:
+				print('Sensor reading error: ' + ex)
+
 		time.sleep(1)
 		elapsed_sec += 1
-		if elapsed_sec % 10 == 0:
-			#eCO2Base, TVOCBase = sgp30.get_iaq_baseline()
-			#sgp30.set_iaq_baseline(eCO2Base,TVOCBase)
+
+		if elapsed_sec % 60 == 0:	
+
 			if printOut:
 				eCO2Base, TVOCBase = sgp30.get_iaq_baseline()
 				print("**** Base: eCO2 = 0x%x, TVOC = 0x%x"%(eCO2Base, TVOCBase))
-		if elapsed_sec % 60 == 0:
-			try:
-				dht11 = Adafruit_DHT.DHT11
-				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
-				humidity = humidity + config.humidityOffset
-				temperature = temperature + config.tempOffset				
-				if printOut:
-					print('Temperature: %d Humidity: %d'%(temperature, humidity))
-				PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
-			except Exception as ex:
-				print('DHT11 reading error')
+
+			PostToServer(config.piSecret,config.piId,statistics.median(cO2List),statistics.median(tempList),statistics.median(humidityList), config.apiUrl)
+			cO2List.clear()
+			tempList.clear()
+			humidityList.clear()
 
 
 def InitSgp30():
