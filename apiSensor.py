@@ -102,3 +102,6 @@ class Config:
 					"PrintValues" : False}
 			with open(configPath, 'w') as conf_out:
 				json.dump(defaultConf, conf_out)
+
+if __name__ == "__main__":
+	main()
