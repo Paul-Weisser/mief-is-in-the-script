@@ -32,7 +32,7 @@ def main():
 		if elapsed_sec % 60 == 0:
 			try:
 				dht11 = Adafruit_DHT.DHT11
-				humidity, temperature = Adafruit_DHT.read_retry(dht11, dht11Pin)
+				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
 				humidity = humidity + config.humidityOffset
 				temperature = temperature + config.tempOffset
 				PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
