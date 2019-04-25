@@ -40,7 +40,7 @@ def main():
 			except Exception as ex:
 				print('DHT11 reading error')
 
-			PostToServer(config.secret,config.id,eCO2,humidity,temperature, config.apiUrl)
+			PostToServer(config.piSecret,config.piId,eCO2,humidity,temperature, config.apiUrl)
 
 
 def InitSgp30():
