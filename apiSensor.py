@@ -11,9 +11,10 @@ from datetime import datetime
 printOut=False
 
 def main():
+	global printOut
 	fileDir = os.path.dirname(os.path.abspath(__file__)) + '/apiConf.json'
 	config=Config(fileDir)
-	global printOut = config.printOut
+	printOut = config.printOut
 	sgp30 = InitSgp30()
 
 	elapsed_sec = 0
