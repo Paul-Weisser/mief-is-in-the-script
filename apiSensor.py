@@ -68,13 +68,13 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
                     "dateTimeUTC" : datetime.utcnow().isoformat()}
 
 	try:
-                resp = requests.post(apiUrl + '/api/airQuality', headers=header, json=payload, verify=False)
-                if resp.status_code != requests.codes.ok:
-                        print('Request not successful (%d): %s'%(resp.status_code, resp.json()))
-                if printOut and resp.status_code == requests.codes.ok:
-                        print('Request successful')
-        except Exception as ex:
-                print('Connection error:',ex)	
+        resp = requests.post(apiUrl + '/api/airQuality', headers=header, json=payload, verify=False)
+        if resp.status_code != requests.codes.ok:
+            print('Request not successful (%d): %s'%(resp.status_code, resp.json()))
+        if printOut and resp.status_code == requests.codes.ok:
+            print('Request successful')
+    except Exception as ex:
+    	print('Connection error:',ex)	
 	
 
 class Config:
