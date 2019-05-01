@@ -90,7 +90,7 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
 	except Exception as ex:
 		print('Connection error:',ex)	
 
-def ConvertRhToAh(humidity, temp)
+def ConvertRhToAh(humidity, temp):
 	ah = 216.7 * (((humidity / 100.0) * 6.112 * math.exp((17.62 * temp) / (243.12 + temp))) / (273.15 + temp))
 	#math.round(ah)
 	return ah
