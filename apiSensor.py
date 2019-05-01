@@ -86,7 +86,7 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl,http):
 				"dateTimeUTC" : datetime.utcnow().isoformat()})
 
 	try:
-		resp = http.request('POST', apiUrl + '/api/airQuality', headers=header, body=payload)
+		resp = http.request('POST', apiUrl + '/api/airQuality', headers=header, body=payload, timeout = 4.0, retries = 3)
 		#resp = requests.post(apiUrl + '/api/airQuality', headers=header, json=payload, verify=False)
 		if resp.status != 200:
 			print('Request not successful (%d): %s'%(resp.status, json.loads(resp.data.decide('utf-8'))))
