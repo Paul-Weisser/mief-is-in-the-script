@@ -1,4 +1,4 @@
-import requests
+import urllib3
 import json
 import os
 import time
@@ -15,6 +15,7 @@ printOut=False
 def main():
 	global printOut
 	fileDir = os.path.dirname(os.path.abspath(__file__)) + '/apiConf.json'
+	http = urllib3.PoolManager()
 	config=Config(fileDir)
 	printOut = config.printOut
 	sgp30 = InitSgp30()
@@ -48,7 +49,10 @@ def main():
 				eCO2Base, TVOCBase = sgp30.get_iaq_baseline()
 				print("**** Base: eCO2 = 0x%x, TVOC = 0x%x"%(eCO2Base, TVOCBase))
 
-			PostToServer(config.piSecret,config.piId,statistics.median(cO2List),statistics.median(humidityList),statistics.median(tempList), config.apiUrl)
+			mCo2=statistics.median(cO2List)
+			mHumidity= statistics.median(humidityList)
+			mTemp = statistics.median(tempList)
+			PostToServer(config.piSecret,config.piId,mCo2,mHumidity,mTemp, config.apiUrl, http)
 			cO2List.clear()
 			tempList.clear()
 			humidityList.clear()
@@ -69,23 +73,24 @@ def InitSgp30():
 	except Exception as ex:
 		print('SGP30 init error: ' + ex)
 
-def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
+def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl,http):
 	header = {
 		'PiSecret':secret,
 		'PiID':id,
 		'Content-Type':'application/json'}
 
-	payload = {
+	payload = json.dumps({
 				"eCO2" : eCO2,
 				"humidity" : humidity,
 				"temperature" : temperature,
-				"dateTimeUTC" : datetime.utcnow().isoformat()}
+				"dateTimeUTC" : datetime.utcnow().isoformat()})
 
 	try:
-		resp = requests.post(apiUrl + '/api/airQuality', headers=header, json=payload, verify=False)
-		if resp.status_code != requests.codes.ok:
-			print('Request not successful (%d): %s'%(resp.status_code, resp.json()))
-		if printOut and resp.status_code == requests.codes.ok:
+		resp = http.request('POST', apiUrl + '/api/airQuality', headers=header, body=payload)
+		#resp = requests.post(apiUrl + '/api/airQuality', headers=header, json=payload, verify=False)
+		if resp.status != 200:
+			print('Request not successful (%d): %s'%(resp.status, json.loads(resp.data.decide('utf-8'))))
+		if printOut and resp.status == 200:
 			print('Request successful')
 	except Exception as ex:
 		print('Connection error:',ex)	
