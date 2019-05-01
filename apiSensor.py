@@ -31,7 +31,7 @@ def main():
 				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
 				humidity = humidity + config.humidityOffset
 				temperature = temperature + config.tempOffset
-				sgp30.set_iag_humidity(ConvertRhToAh(humidity,temperature))
+				sgp30.set_iaq_humidity(ConvertRhToAh(humidity,temperature))
 				eCO2, TVOC = sgp30.iaq_measure()
 				cO2List.append(eCO2)
 				tempList.append(temperature)
@@ -92,21 +92,31 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
 
 def ConvertRhToAh(humidity, temp):
 	ah = 216.7 * (((humidity / 100.0) * 6.112 * math.exp((17.62 * temp) / (243.12 + temp))) / (273.15 + temp))
-	#math.round(ah)
 	return ah
 
 class Config:
 	def __init__(self, path):
-		self.CheckCreateConfig(path)
+		try:			
+			self.CheckCreateConfig(path)
+			self.ReadConfig(path)
+		except Exception as ex:
+			#Die Config ist auf jeden Fall da, da wir sie sonst erzeugt hätten
+			#Wenn wir hier landen, muss die Config also defekt sein
+			#-> Löschen und neu erzeugen
+			os.remove(path)
+			self.CheckCreateConfig(path)
+			self.ReadConfig(path)
+
+	def ReadConfig(self, path):
 		with open(path) as conf_file:
-			conf = json.load(conf_file)
-			self.piId = conf['PiID']
-			self.piSecret = conf['PiSecret']
-			self.dht11Pin = conf['Dht11Pin']
-			self.tempOffset = conf['TempOffset']
-			self.humidityOffset = conf['HumidityOffset']
-			self.apiUrl = conf['ApiUrl']
-			self.printOut = conf['PrintValues']
+				conf = json.load(conf_file)
+				self.piId = conf['PiID']
+				self.piSecret = conf['PiSecret']
+				self.dht11Pin = conf['Dht11Pin']
+				self.tempOffset = conf['TempOffset']
+				self.humidityOffset = conf['HumidityOffset']
+				self.apiUrl = conf['ApiUrl']
+				self.printOut = conf['PrintValues']
 
 	def CheckCreateConfig(self, configPath):
 		if not os.path.isfile(configPath):
