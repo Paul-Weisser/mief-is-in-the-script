@@ -7,6 +7,7 @@ import busio
 import adafruit_sgp30
 import Adafruit_DHT
 import statistics
+import math
 from datetime import datetime
 
 printOut=False
@@ -27,10 +28,11 @@ def main():
 		#Alle 6 Sekunden machen wir eine Messung		
 		if elapsed_sec % 6 == 0:
 			try:
-				eCO2, TVOC = sgp30.iaq_measure()
 				humidity, temperature = Adafruit_DHT.read_retry(dht11, config.dht11Pin)
 				humidity = humidity + config.humidityOffset
 				temperature = temperature + config.tempOffset
+				sgp30.set_iag_humidity(ConvertRhToAh(humidity,temperature))
+				eCO2, TVOC = sgp30.iaq_measure()
 				cO2List.append(eCO2)
 				tempList.append(temperature)
 				humidityList.append(humidity)
@@ -39,9 +41,6 @@ def main():
 					print('Temperature = %d Humidity = %d'%(temperature, humidity))
 			except Exception as ex:
 				print('Sensor reading error: ' + ex)
-
-		time.sleep(1)
-		elapsed_sec += 1
 
 		if elapsed_sec % 60 == 0:	
 
@@ -53,6 +52,9 @@ def main():
 			cO2List.clear()
 			tempList.clear()
 			humidityList.clear()
+		
+		time.sleep(1)
+		elapsed_sec += 1
 
 
 def InitSgp30():
@@ -65,7 +67,7 @@ def InitSgp30():
 		sgp30.set_iaq_baseline(0x8973, 0x8aae)
 		return sgp30
 	except Exception as ex:
-		print('SGP30 init error')
+		print('SGP30 init error: ' + ex)
 
 def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
 	header = {
@@ -87,7 +89,11 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl):
 			print('Request successful')
 	except Exception as ex:
 		print('Connection error:',ex)	
-	
+
+def ConvertRhToAh(humidity, temp)
+	ah = 216.7 * (((humidity / 100.0) * 6.112 * math.exp((17.62 * temp) / (243.12 + temp))) / (273.15 + temp))
+	#math.round(ah)
+	return ah
 
 class Config:
 	def __init__(self, path):
