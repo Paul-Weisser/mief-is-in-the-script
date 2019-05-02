@@ -13,9 +13,12 @@ from datetime import datetime
 
 
 def main():
+	#Working Dir
+	workingDir = os.path.dirname(os.path.abspath(__file__))
+
 	#Logger config setzen
 	global logger
-	logging.basicConfig(filename='mief.log')
+	logging.basicConfig(filename= workingDir + '/mief.log')
 	logger = logging.getLogger("MiefLogger")
 	logger.setLevel(logging.DEBUG)
 	ch = logging.StreamHandler()
@@ -23,8 +26,7 @@ def main():
 	logger.addHandler(ch)
 
 	#Verzeichnis für die Config setzen und Config laden
-	fileDir = os.path.dirname(os.path.abspath(__file__)) + '/apiConf.json'
-	config=Config(fileDir)
+	config=Config(workingDir + '/apiConf.json')
 	#Log-Level setzten
 	if not config.debugMode:
 		logger.setLevel(logging.WARNING)
