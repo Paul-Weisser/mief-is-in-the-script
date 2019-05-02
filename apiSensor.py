@@ -73,7 +73,7 @@ def main():
 			mCo2=statistics.median(cO2List)
 			mHumidity= statistics.median(humidityList)
 			mTemp = statistics.median(tempList)
-			logger.info("Push to Server:\n\teCO2 = %d ppm\n\tTemperature = %d °C\n\tHumidity %d %%"%(mCo2, mTemp, mHumidity))
+			logger.info("Push to Server:\n\teCO2 = %f ppm\n\tTemperature = %f °C\n\tHumidity %f %%"%(mCo2, mTemp, mHumidity))
 			PostToServer(config.piSecret,config.piId,mCo2,mHumidity,mTemp, config.apiUrl, http)
 			#Alle Listen wieder zurücksetzen
 			cO2List.clear()
