@@ -34,8 +34,10 @@ def main():
 	if len(sys.argv) == 3:
 		piId = sys.argv[1]
 		piSecret = sys.argv[2]
+		logger.info("PiId and PiSecret are set from comandline:\n\tPiID = %s\n\tPiSecret = %s"%(piId,piSecret))
 		config.SetIdAndSecret(piId,piSecret)		
-
+		logger.info("exit script")
+		sys.exit(0)
 	#Log-Level setzten
 	if not config.debugMode:
 		logger.setLevel(logging.WARNING)
