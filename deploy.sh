@@ -2,7 +2,7 @@
 
 sudo date -s "$(curl -s "http://worldtimeapi.org/api/timezone/Europe/Berlin.txt" | grep "^datetime" | sed "s/.* \(.*\)/\1/")"
 
-sudo raspi-config noint do_i2c 0
+sudo raspi-config nonint do_i2c 0
 
 mkdir /home/pi/mief
 cd /home/pi/mief
