@@ -8,7 +8,7 @@ sudo python3 setup.py install
 
 cd ..
 
-read -p "Enter PiId provided by the homepage(can be changed in the config: "  id
+read -p "Enter PiId provided by the homepage(can be changed in the config): "  id
 read -p "Enter ApiSecret provided by the homepage(can be changed in the config): "  secret
 
 wget -O apiSensor.py https://raw.githubusercontent.com/Paul-Weisser/mief-is-in-the-script/master/apiSensor.py
