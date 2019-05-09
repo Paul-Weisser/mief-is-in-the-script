@@ -21,6 +21,7 @@ def main():
 	logging.basicConfig(filename= workingDir + '/mief.log')
 	logger = logging.getLogger("MiefLogger")
 	logger.setLevel(logging.DEBUG)
+	#Consolen Ausgabe anhängen
 	ch = logging.StreamHandler()
 	ch.setLevel(logging.DEBUG)
 	logger.addHandler(ch)
@@ -60,8 +61,8 @@ def main():
 				humidityList.append(humidity)
 				#Werte loggen
 				logger.info("Values:\n\teCO2 = %d ppm\n\tTVOC = %d ppb\n\tTemperature = %d °C\n\tHumidity = %d %%\n\tAbsolute humidity = %f g/m³"%(eCO2, TVOC,temperature, humidity,aHumidity))
-			except Exception as ex:
-				logger.error("Sensor reading error:", str(ex))
+			except Exception:
+				logger.error("Sensor reading error:", exc_info=True)
 
 		#Einmal die Minute die Daten an den Server pushen
 		if elapsed_sec % 60 == 0:
@@ -91,8 +92,8 @@ def InitSgp30():
 		sgp30.iaq_init()
 		sgp30.set_iaq_baseline(0x8973, 0x8aae)
 		return sgp30
-	except Exception as ex:
-		logger.error("SGP30 init error:", str(ex))
+	except Exception:
+		logger.error("SGP30 init error:", exc_info=True)
 
 def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl,http):
 	header = {
@@ -112,26 +113,27 @@ def PostToServer(secret,id,eCO2,humidity,temperature, apiUrl,http):
 			logger.warning("Request not successful (%d): %s"%(resp.status, json.loads(resp.data.decode('utf-8'))))
 		if resp.status == 200:
 			logger.info("Request successful")
-	except Exception as ex:
-		logger.error("Connection error:", str(ex))	
+	except Exception:
+		logger.error("Connection error", exc_info=True)	
 
 def ConvertRhToAh(humidity, temp):
 	ah = 216.7 * (((humidity / 100.0) * 6.112 * math.exp((17.62 * temp) / (243.12 + temp))) / (273.15 + temp))
 	return ah
 
 class Config:
-	def __init__(self, path):
+	def __init__(self, configPath):
 		try:			
-			self.CheckCreateConfig(path)
-			self.ReadConfig(path)
-		except Exception as ex:
+			if not os.path.isfile(configPath):
+				self.CreateConfig(configPath)
+			self.ReadConfig(configPath)
+		except Exception:
 			#Die Config ist auf jeden Fall da, da wir sie sonst erzeugt hätten
 			#Wenn wir hier landen, muss die Config also defekt sein
-			#-> Löschen und neu erzeugen
-			logger.error("Create config error:", str(ex))
-			os.remove(path)
-			self.CheckCreateConfig(path)
-			self.ReadConfig(path)
+			#-> Neu erzeugen
+			logger.error("Create config error:", exc_info=True)
+			logger.info("Override old broken config!")
+			self.CreateConfig(configPath)
+			self.ReadConfig(configPath)
 
 	def ReadConfig(self, path):
 		with open(path) as conf_file:
@@ -144,18 +146,17 @@ class Config:
 				self.apiUrl = conf['ApiUrl']
 				self.debugMode = conf['DebugMode']
 
-	def CheckCreateConfig(self, configPath):
-		if not os.path.isfile(configPath):
-			defaultConf = {
-					"PiSecret" : "-1",
-					"PiID" : "-1",
-					"Dht11Pin" : 4,
-					"TempOffset" : 0,
-					"HumidityOffset" : 0,
-					"ApiUrl" : "https://mief-is-in-the-air.tk",
-					"DebugMode" : False}
-			with open(configPath, 'w') as conf_out:
-				json.dump(defaultConf, conf_out)
+	def CreateConfig(self, configPath):
+		defaultConf = {
+				"PiSecret" : "-1",
+				"PiID" : "-1",
+				"Dht11Pin" : 4,
+				"TempOffset" : 0,
+				"HumidityOffset" : 0,
+				"ApiUrl" : "https://mief-is-in-the-air.tk",
+				"DebugMode" : False}
+		with open(configPath, 'w') as conf_out:
+			json.dump(defaultConf, conf_out)
 
 if __name__ == "__main__":
 	main()
