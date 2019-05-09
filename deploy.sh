@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo date -s "$(curl -s "http://worldtimeapi.org/api/timezone/Europe/Berlin.txt" | grep "^datetime" | sed "s/.* \(.*\)/\1/")"
+
 mkdir /home/pi/mief
 cd /home/pi/mief
 
