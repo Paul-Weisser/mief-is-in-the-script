@@ -166,7 +166,7 @@ class Config(object):
     __tvoc_base_default = 0x8aae
 
     __slots__ = ['piId', 'piSecret', 'dht11Pin', 'tempOffset', 'humidityOffset', 'apiUrl', 'debugMode', 'eCO2Base',
-                 'tVOCBase']
+                 'tVOCBase','configPath']
 
     def __init__(self, config_path):
         self.piId = None
@@ -178,12 +178,12 @@ class Config(object):
         self.debugMode = None
         self.eCO2Base = None
         self.tVOCBase = None
+        self.configPath = None
 
         try:
             self.configPath = config_path
             if not os.path.isfile(config_path):
-                self.write_config(config_path, "-1", "-1", 4, 0, 0, "https://mief-is-in-the-air.tk", False,
-                                  Config.__eco2_base_default, Config.__tvoc_base_default)
+                self.write_config(config_path, "-1", "-1", 4, 0, 0, "https://mief-is-in-the-air.tk", False, Config.__eco2_base_default, Config.__tvoc_base_default)
             self.read_config(config_path)
         except Exception:
             # Die Config ist auf jeden Fall da, da wir sie sonst erzeugt hätten
@@ -191,8 +191,7 @@ class Config(object):
             # -> Neu erzeugen
             logger.error("Create config error:", exc_info=True)
             logger.info("Override old broken config!")
-            self.write_config(config_path, "-1", "-1", 4, 0, 0, "https://mief-is-in-the-air.tk", False,
-                              Config.__eco2_base_default, Config.__tvoc_base_default)
+            self.write_config(config_path, "-1", "-1", 4, 0, 0, "https://mief-is-in-the-air.tk", False, Config.__eco2_base_default, Config.__tvoc_base_default)
             self.read_config(config_path)
 
     def read_config(self, path):
@@ -209,8 +208,7 @@ class Config(object):
             self.tVOCBase = conf['TVOCBase']
 
     @staticmethod
-    def write_config(config_path, pi_secret, pi_id, dht11pin, temp_off, humidity_off, api_url, debug_mode, eco2_base,
-                     tvoc_base):
+    def write_config(config_path, pi_secret, pi_id, dht11pin, temp_off, humidity_off, api_url, debug_mode, eco2_base, tvoc_base):
         default_conf = {
             "PiSecret": pi_secret,
             "PiID": pi_id,
