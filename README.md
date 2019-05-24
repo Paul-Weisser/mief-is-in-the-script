@@ -15,7 +15,7 @@ The script will ask you for a `pi-id` and a `pi-secret`. You can obtain these fr
 If you don't know these yet you can leave them empty and adjust them later in the `apiConfig.json`, located in `~/mief`. 
 
 
-#Config
+# Config
 
 You can also adjust a offset for the temperature or the humidity in `apiConfig.json` and switch on the debug mode for more detailed logging.
 
